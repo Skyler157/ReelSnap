@@ -8,6 +8,9 @@ use App\Services\RapidApiDownloader;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * Register services.
+     */
     public function register(): void
     {
         $this->app->bind(
@@ -16,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
         );
     }
 
+    /**
+     * Bootstrap services.
+     */
     public function boot(): void
     {
         //

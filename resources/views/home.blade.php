@@ -1,79 +1,215 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>ReelSnap - Instagram Video Downloader</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>ReelSnap</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6366f1, #9333ea);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 35px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #111827;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: #6366f1;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button:disabled {
+            background: gray;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .video-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        video {
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .download-btn {
+            margin-top: 15px;
+            background: #16a34a;
+        }
+
+        .download-btn:hover {
+            background: #15803d;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 15px;
+            text-align: center;
+            color: #6366f1;
+            font-weight: 500;
+        }
+
+        .spinner {
+            border: 4px solid #eee;
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        .stats {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
 
-    <div class="bg-gray-800 p-8 rounded-xl shadow-xl w-full max-w-lg">
-        <h1 class="text-3xl font-bold text-center mb-6">
-            🎬 ReelSnap
-        </h1>
+<body>
 
-        <p class="text-center text-gray-400 mb-6">
-            Download Instagram videos instantly
-        </p>
+<div class="card">
 
-        @if(session('success'))
-            <div class="bg-green-600 p-3 rounded mb-4 text-center">
-                {{ session('success') }}
-            </div>
-        @endif
+    <h2>🎬 ReelSnap</h2>
+    <p style="text-align:center; margin-bottom:20px; color:#6b7280;">
+        Download Instagram Reels instantly
+    </p>
 
-        <form method="POST" action="{{ route('download') }}">
-            @csrf
+    @if(session('success'))
+        <div class="alert success">
+            {{ session('success') }}
+        </div>
+    @endif
 
-            <input 
-                type="text" 
-                name="url" 
-                placeholder="Paste Instagram video URL here..."
-                class="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
+    @if($errors->any())
+        <div class="alert error">
+            {{ $errors->first() }}
+        </div>
+    @endif
 
-            @error('url')
-                <p class="text-red-500 mt-2">{{ $message }}</p>
-            @enderror
+    <form method="POST" action="{{ route('download') }}" id="downloadForm">
+        @csrf
+        <input type="text" name="url" placeholder="Paste Instagram Reel URL here..." required>
+        <br><br>
+        <button type="submit" id="submitBtn">Download Reel</button>
+    </form>
 
-            <button 
-                type="submit"
-                class="w-full mt-4 bg-purple-600 hover:bg-purple-700 transition p-3 rounded font-semibold"
-            >
-                Download
-            </button>
-        </form>
-
-        {{-- Video Preview Section --}}
-        @if(session('video') && session('video')['success'])
-            <div class="mt-6 bg-gray-700 p-4 rounded">
-
-                {{-- Thumbnail --}}
-                @if(session('video')['thumbnail'])
-                    <img src="{{ session('video')['thumbnail'] }}" 
-                         class="rounded mb-4 w-full">
-                @endif
-
-                {{-- Title --}}
-                <h2 class="text-lg font-semibold mb-1">
-                    {{ session('video')['title'] }}
-                </h2>
-
-                {{-- Author --}}
-                @if(session('video')['author'])
-                    <p class="text-gray-300 mb-2">By: {{ session('video')['author'] }}</p>
-                @endif
-
-                {{-- Download Button --}}
-                <a href="{{ session('video')['video_url'] }}" 
-                   class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded"
-                   download>
-                    Download Video
-                </a>
-            </div>
-        @endif
-
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        Fetching video...
     </div>
+
+    @if(session('video'))
+        <div class="video-section">
+            <h3>{{ session('video.title') }}</h3>
+            <p><strong>Author:</strong> {{ session('video.author') }}</p>
+            <p><strong>Duration:</strong> {{ session('video.duration') }}</p>
+
+            <video controls width="100%">
+                <source src="{{ session('video.video_url') }}" type="video/mp4">
+            </video>
+
+            <a href="{{ session('video.video_url') }}" download>
+                <button class="download-btn">⬇ Download Video</button>
+            </a>
+        </div>
+    @endif
+
+    <div class="stats">
+        Total Downloads: <strong>{{ \App\Models\Download::count() }}</strong>
+    </div>
+
+</div>
+
+<script>
+document.getElementById('downloadForm').addEventListener('submit', function() {
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('loading').style.display = 'block';
+});
+</script>
 
 </body>
 </html>

@@ -3,6 +3,12 @@
 **ReelSnap** is a lightweight Laravel-based web application that allows users to download Instagram Reels instantly. It fetches video data via a RapidAPI Instagram Reels endpoint, displays a preview, shows metadata, and provides a direct download option.
 
 
+
+## RapidAPI Integration
+
+This project uses RapidAPI as a gateway to access third-party Instagram download services.  
+RapidAPI provides secure API key management, request handling, and usage monitoring for external APIs.
+
 ## Features
 
 - Download Instagram Reels by URL  
