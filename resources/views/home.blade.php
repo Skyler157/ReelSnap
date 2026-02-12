@@ -268,7 +268,7 @@
             <div class="alert error">{{ $errors->first() }}</div>
         @endif
 
-        <form method="POST" action="{{ route('download') }}" id="downloadForm" class="form-wrap">
+        <form method="POST" action="{{ route('download', [], false) }}" id="downloadForm" class="form-wrap">
             @csrf
             <input
                 type="url"
