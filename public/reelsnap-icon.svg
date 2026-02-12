@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ReelSnap icon">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#feda75"/>
+      <stop offset="38%" stop-color="#f58529"/>
+      <stop offset="68%" stop-color="#d62976"/>
+      <stop offset="100%" stop-color="#4f5bd5"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="url(#g)"/>
+  <rect x="16" y="16" width="20" height="20" rx="5" fill="#fff" opacity="0.95"/>
+  <circle cx="22" cy="22" r="2.5" fill="#d62976"/>
+  <circle cx="30" cy="22" r="2.5" fill="#d62976"/>
+  <circle cx="22" cy="30" r="2.5" fill="#d62976"/>
+  <circle cx="30" cy="30" r="2.5" fill="#d62976"/>
+  <path d="M42 22v13h-4l8 9 8-9h-4V22z" fill="#fff"/>
+</svg>
