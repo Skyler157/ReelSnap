@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: reelsnap
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        sync: false
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: reelsnap-db
+          property: connectionString
+      - key: RAPIDAPI_KEY
+        sync: false
+      - key: RAPIDAPI_HOST
+        sync: false
+      - key: RAPIDAPI_BASE_URL
+        sync: false
+      - key: RAPIDAPI_CONNECT_TIMEOUT
+        value: "5"
+      - key: RAPIDAPI_TIMEOUT
+        value: "10"
+      - key: REEL_DOWNLOAD_TIMEOUT
+        value: "120"
+      - key: RAPIDAPI_RETRIES
+        value: "2"
+      - key: RAPIDAPI_RETRY_DELAY_MS
+        value: "200"
+      - key: ALLOWED_VIDEO_HOSTS
+        value: cdninstagram.com,fbcdn.net
+
+databases:
+  - name: reelsnap-db
+    plan: free
