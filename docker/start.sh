@@ -11,6 +11,8 @@ if [ -z "${APP_KEY:-}" ]; then
   exit 1
 fi
 
+php artisan package:discover --ansi
+
 echo "Waiting for database connection..."
 ATTEMPTS=0
 until php artisan migrate --force; do
