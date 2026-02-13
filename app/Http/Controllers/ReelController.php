@@ -7,6 +7,7 @@ use App\Services\Contracts\InstagramDownloaderInterface;
 use App\Models\Download;
 use App\Rules\InstagramUrl;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 use Throwable;
@@ -27,53 +28,74 @@ class ReelController extends Controller
 
     public function download(Request $request)
     {
-        $request->validate([
-            'url' => [
-                'required',
-                'url',
-                new InstagramUrl(),
-            ]
-        ]);
+        try {
+            $request->validate([
+                'url' => [
+                    'required',
+                    'url',
+                    new InstagramUrl(),
+                ]
+            ]);
 
-        $inputUrl = (string) $request->input('url');
-        $result = $this->downloader->getVideoData($inputUrl);
+            $inputUrl = (string) $request->input('url');
+            $result = $this->downloader->getVideoData($inputUrl);
 
-        if (!$result['success']) {
-            return back()->withErrors($result['message']);
+            if (!is_array($result) || !array_key_exists('success', $result)) {
+                Log::error('Downloader returned unexpected payload.', [
+                    'payload_type' => gettype($result),
+                ]);
+
+                return back()->withErrors('Could not fetch the video. Please try again.');
+            }
+
+            if (!(bool) $result['success']) {
+                $message = is_string($result['message'] ?? null)
+                    ? $result['message']
+                    : 'Could not fetch the video. Please try again.';
+
+                return back()->withErrors($message);
+            }
+
+            Download::create([
+                'url' => $this->normalizeUrlForStorage($inputUrl),
+                'ip_address' => $this->hashIpAddress($request->ip()),
+            ]);
+
+            $safeTitle = $this->sanitizeTitle((string) ($result['title'] ?? 'Instagram Reel'));
+
+            $downloadUrl = URL::temporarySignedRoute(
+                'download.file',
+                now()->addMinutes(10),
+                [
+                    'video_url' => (string) ($result['video_url'] ?? ''),
+                    'title' => $safeTitle,
+                ]
+            );
+
+            $previewUrl = URL::temporarySignedRoute(
+                'preview',
+                now()->addMinutes(10),
+                [
+                    'video_url' => (string) ($result['video_url'] ?? ''),
+                    'title' => $safeTitle,
+                    'author' => (string) ($result['author'] ?? 'Unknown'),
+                    'duration' => (string) ($result['duration'] ?? 'N/A'),
+                ]
+            );
+
+            return back()
+                ->with('success', 'Video fetched successfully!')
+                ->with('download_link', $downloadUrl)
+                ->with('preview_link', $previewUrl)
+                ->with('video', $result);
+        } catch (Throwable $e) {
+            Log::error('Download request failed.', [
+                'message' => $e->getMessage(),
+                'url' => (string) $request->input('url', ''),
+            ]);
+
+            return back()->withErrors('Unexpected server error. Please try again.');
         }
-
-        Download::create([
-            'url' => $this->normalizeUrlForStorage($inputUrl),
-            'ip_address' => $this->hashIpAddress($request->ip()),
-        ]);
-
-        $safeTitle = $this->sanitizeTitle((string) ($result['title'] ?? 'Instagram Reel'));
-
-        $downloadUrl = URL::temporarySignedRoute(
-            'download.file',
-            now()->addMinutes(10),
-            [
-                'video_url' => $result['video_url'],
-                'title' => $safeTitle,
-            ]
-        );
-
-        $previewUrl = URL::temporarySignedRoute(
-            'preview',
-            now()->addMinutes(10),
-            [
-                'video_url' => $result['video_url'],
-                'title' => $safeTitle,
-                'author' => (string) ($result['author'] ?? 'Unknown'),
-                'duration' => (string) ($result['duration'] ?? 'N/A'),
-            ]
-        );
-
-        return back()
-            ->with('success', 'Video fetched successfully!')
-            ->with('download_link', $downloadUrl)
-            ->with('preview_link', $previewUrl)
-            ->with('video', $result);
     }
 
     public function downloadFile(Request $request)

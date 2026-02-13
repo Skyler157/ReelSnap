@@ -33,9 +33,15 @@ class RapidApiDownloader implements InstagramDownloaderInterface
             $data = $response->json();
 
             if (!is_array($data) || !($data['success'] ?? false)) {
+                $message = 'Invalid response from API.';
+
+                if (is_array($data) && is_string($data['message'] ?? null)) {
+                    $message = $data['message'];
+                }
+
                 return [
                     'success' => false,
-                    'message' => $data['message'] ?? 'Invalid response from API.'
+                    'message' => $message,
                 ];
             }
 
