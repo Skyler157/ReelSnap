@@ -28,15 +28,15 @@ class ReelController extends Controller
 
     public function download(Request $request)
     {
-        try {
-            $request->validate([
-                'url' => [
-                    'required',
-                    'url',
-                    new InstagramUrl(),
-                ]
-            ]);
+        $request->validate([
+            'url' => [
+                'required',
+                'url',
+                new InstagramUrl(),
+            ]
+        ]);
 
+        try {
             $inputUrl = (string) $request->input('url');
             $result = $this->downloader->getVideoData($inputUrl);
 
@@ -90,6 +90,7 @@ class ReelController extends Controller
                 ->with('video', $result);
         } catch (Throwable $e) {
             Log::error('Download request failed.', [
+                'exception' => $e::class,
                 'message' => $e->getMessage(),
                 'url' => (string) $request->input('url', ''),
             ]);
