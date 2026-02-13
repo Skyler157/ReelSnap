@@ -25,6 +25,10 @@ class InstagramUrl implements ValidationRule
         }
 
         $parts = parse_url($url);
+        if (!is_array($parts)) {
+            return false;
+        }
+
         $scheme = strtolower($parts['scheme'] ?? '');
         $host = strtolower($parts['host'] ?? '');
         $path = strtolower($parts['path'] ?? '');
