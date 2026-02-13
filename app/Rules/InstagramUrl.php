@@ -58,7 +58,7 @@ class InstagramUrl implements ValidationRule
         // - /p/{id}
         // - /tv/{id}
         // - /share/reel/{id}
-        return (bool) preg_match('#^/(reels?|p|tv)/[^/?#]+/?$#', $path)
-            || (bool) preg_match('#^/share/reel/[^/?#]+/?$#', $path);
+        return (bool) preg_match('~^/(reels?|p|tv)/[^/?#]+/?$~', $path)
+            || (bool) preg_match('~^/share/reel/[^/?#]+/?$~', $path);
     }
 }
