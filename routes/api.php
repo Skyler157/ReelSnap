@@ -5,10 +5,16 @@ use App\Http\Controllers\ReelController;
 
 // Simple load test endpoint (no CSRF/session)
 Route::get('/load-test', function () {
-    return response()->json(['status' => 'ok', 'timestamp' => now()]);
+return response()->json(['status' => 'ok', 'timestamp' => now()]);
 });
 
 // Functional download test endpoint
-Route::post('/download-test', [ReelController::class, 'download'])
-    ->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class])
-    ->middleware('throttle:60,1'); // optional: higher limit for testing
+Route::get('/load-test', function() {
+return response()->json(['status' => 'ok', 'timestamp' => now()]);
+});
+
+Route::post('/download-test', function() {
+return response()->json([
+'download_url' => 'https://www.instagram.com/reel/DU6HoHRCppE'
+]);
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
