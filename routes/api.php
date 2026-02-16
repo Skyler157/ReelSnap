@@ -1,20 +1,18 @@
-// routes/api.php
+<?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ReelController;
 
-// Simple load test endpoint (no CSRF/session)
+// Simple infrastructure endpoint for load tests.
 Route::get('/load-test', function () {
-return response()->json(['status' => 'ok', 'timestamp' => now()]);
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now()->toIso8601String(),
+    ]);
 });
 
-// Functional download test endpoint
-Route::get('/load-test', function() {
-return response()->json(['status' => 'ok', 'timestamp' => now()]);
+// Functional endpoint for load test wiring checks.
+Route::post('/download-test', function () {
+    return response()->json([
+        'download_url' => 'https://www.instagram.com/reel/DU6HoHRCppE',
+    ]);
 });
-
-Route::post('/download-test', function() {
-return response()->json([
-'download_url' => 'https://www.instagram.com/reel/DU6HoHRCppE'
-]);
-})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
